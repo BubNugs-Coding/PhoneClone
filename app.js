@@ -159,7 +159,22 @@ emergencyBtn.addEventListener("click", () => {
   // Placeholder for later
 });
 
-appsBtn.addEventListener("click", showCodeSheet);
+appsBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  showCodeSheet();
+});
+
+/* iOS sometimes drops click on icon buttons — also handle touch */
+appsBtn.addEventListener(
+  "touchend",
+  (e) => {
+    e.preventDefault();
+    showCodeSheet();
+  },
+  { passive: false }
+);
+
 codeClose.addEventListener("click", hideCodeSheet);
 codeReset.addEventListener("click", resetToLockScreen);
 
