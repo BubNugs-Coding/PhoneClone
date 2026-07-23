@@ -61,6 +61,7 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  transition: opacity 0.35s ease, transform 0.45s ease;
 }
 
 .wallpaper {
@@ -200,7 +201,9 @@ body {
   justify-content: center;
   cursor: pointer;
   box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.4);
-  transition: background 0.12s ease, transform 0.08s ease;
+  transition: background 0.1s ease, transform 0.08s ease, border-color 0.1s ease;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 .key .digit,
@@ -209,9 +212,12 @@ body {
   z-index: 1;
 }
 
+/* iOS-style bright flash on press */
+.key.pressed,
 .key:active {
-  background: rgba(255, 255, 255, 0.18);
-  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: scale(0.97);
 }
 
 .key-spacer {
@@ -308,4 +314,221 @@ body {
   .digit {
     font-size: 28px;
   }
+}
+
+/* —— Unlock → Google homepage —— */
+.screen.unlocking {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.screen.hidden {
+  display: none;
+}
+
+.google-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--app-height);
+  min-height: 100dvh;
+  min-height: 100lvh;
+  background: #fff;
+  color: #202124;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  font-family: "Google Sans", "Product Sans", Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+.google-screen.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.google-screen[hidden] {
+  display: none;
+}
+
+.google-screen.visible[hidden] {
+  display: flex;
+}
+
+.g-top {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 18px 0;
+}
+
+.g-icon-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.g-icon-btn:active {
+  background: rgba(60, 64, 67, 0.08);
+}
+
+.g-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.g-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px 40px;
+  margin-top: -40px;
+}
+
+.g-logo {
+  width: min(160px, 46vw);
+  margin-bottom: 28px;
+}
+
+.g-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.g-search {
+  width: 100%;
+  max-width: 560px;
+}
+
+.g-search-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 48px;
+  padding: 4px 10px 4px 14px;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.08);
+}
+
+.g-search-box:focus-within {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.18);
+  border-color: transparent;
+}
+
+.g-search-icon {
+  flex-shrink: 0;
+}
+
+.g-search-box input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: #202124;
+  padding: 8px 6px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.g-search-box input::placeholder {
+  color: #9aa0a6;
+}
+
+.g-tool {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.g-tool:active {
+  background: rgba(60, 64, 67, 0.08);
+}
+
+.g-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 4px;
+  width: 100%;
+  max-width: 360px;
+  margin-top: 36px;
+}
+
+.g-shortcut {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 4px;
+  border-radius: 8px;
+  color: #202124;
+}
+
+.g-shortcut:active {
+  background: rgba(60, 64, 67, 0.06);
+}
+
+.g-shortcut-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.g-shortcut-icon.g-add {
+  background: #f1f3f4;
+  color: #5f6368;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.g-shortcut-label {
+  font-size: 12px;
+  color: #4d5156;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.g-footer {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  font-size: 12px;
+  color: #70757a;
+  background: #f2f2f2;
 }

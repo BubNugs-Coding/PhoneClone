@@ -5,9 +5,15 @@ const keypad = document.getElementById("keypad");
 const dotsEl = document.getElementById("dots");
 const cancelBtn = document.getElementById("cancel");
 const emergencyBtn = document.getElementById("emergency");
+const passcodeScreen = document.getElementById("passcode-screen");
+const googleScreen = document.getElementById("google-screen");
+const themeColorMeta = document.getElementById("theme-color");
+const searchForm = document.getElementById("g-search");
+const searchInput = document.getElementById("g-query");
 
 let entry = "";
 let locked = false;
+let unlocked = false;
 
 /* iOS PWA often undersizes 100vh/dvh — pin to real window height */
 function syncViewportHeight() {
@@ -37,33 +43,70 @@ function clearEntry() {
   updateDots();
 }
 
-function shakeAndClear() {
+function showGoogle() {
+  unlocked = true;
   locked = true;
-  dotsEl.classList.add("shake");
+
+  googleScreen.hidden = false;
+  // Force reflow so the enter transition runs
+  void googleScreen.offsetWidth;
+  googleScreen.classList.add("visible");
+
+  passcodeScreen.classList.add("unlocking");
+  themeColorMeta.setAttribute("content", "#ffffff");
+  document.documentElement.style.background = "#fff";
+  document.body.style.background = "#fff";
+
   setTimeout(() => {
-    dotsEl.classList.remove("shake");
-    clearEntry();
-    locked = false;
+    passcodeScreen.classList.add("hidden");
+    searchInput.focus({ preventScroll: true });
   }, 400);
 }
 
 function pressDigit(digit) {
-  if (locked || entry.length >= PASSCODE_LENGTH) return;
+  if (locked || unlocked || entry.length >= PASSCODE_LENGTH) return;
 
   entry += digit;
   updateDots();
 
   if (entry.length === PASSCODE_LENGTH) {
-    // Placeholder: wrong passcode shake for now — real unlock later
-    setTimeout(shakeAndClear, 180);
+    locked = true;
+    setTimeout(showGoogle, 220);
   }
 }
 
 function deleteDigit() {
-  if (locked || entry.length === 0) return;
+  if (locked || unlocked || entry.length === 0) return;
   entry = entry.slice(0, -1);
   updateDots();
 }
+
+/* Touch press flash — pointer events work for finger + mouse */
+function setKeyPressed(key, pressed) {
+  if (!key) return;
+  key.classList.toggle("pressed", pressed);
+}
+
+keypad.addEventListener("pointerdown", (e) => {
+  const key = e.target.closest(".key");
+  if (!key) return;
+  setKeyPressed(key, true);
+});
+
+keypad.addEventListener("pointerup", (e) => {
+  const key = e.target.closest(".key");
+  setKeyPressed(key, false);
+});
+
+keypad.addEventListener("pointercancel", (e) => {
+  const key = e.target.closest(".key");
+  setKeyPressed(key, false);
+});
+
+keypad.addEventListener("pointerleave", (e) => {
+  const key = e.target.closest(".key");
+  setKeyPressed(key, false);
+});
 
 keypad.addEventListener("click", (e) => {
   const key = e.target.closest(".key");
@@ -81,7 +124,15 @@ emergencyBtn.addEventListener("click", () => {
   // Placeholder for later
 });
 
+searchForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const q = searchInput.value.trim();
+  if (!q) return;
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, "_blank");
+});
+
 document.addEventListener("keydown", (e) => {
+  if (unlocked) return;
   if (e.key >= "0" && e.key <= "9") {
     pressDigit(e.key);
   } else if (e.key === "Backspace") {
