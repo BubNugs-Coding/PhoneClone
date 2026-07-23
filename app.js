@@ -9,6 +9,22 @@ const emergencyBtn = document.getElementById("emergency");
 let entry = "";
 let locked = false;
 
+/* iOS PWA often undersizes 100vh/dvh — pin to real window height */
+function syncViewportHeight() {
+  const h = Math.round(
+    Math.max(window.innerHeight, window.visualViewport?.height || 0)
+  );
+  if (h > 0) {
+    document.documentElement.style.setProperty("--app-height", `${h}px`);
+  }
+}
+
+syncViewportHeight();
+window.addEventListener("resize", syncViewportHeight);
+window.addEventListener("orientationchange", syncViewportHeight);
+window.visualViewport?.addEventListener("resize", syncViewportHeight);
+window.visualViewport?.addEventListener("scroll", syncViewportHeight);
+
 function updateDots() {
   dots.forEach((dot, i) => {
     dot.classList.toggle("filled", i < entry.length);
