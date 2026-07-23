@@ -148,8 +148,23 @@
             <circle cx="19" cy="19" r="1.6" fill="#5f6368" />
           </svg>
         </button>
-        <button type="button" class="g-avatar" aria-label="Account">A</button>
+        <button type="button" class="g-avatar" aria-label="Account">R</button>
       </header>
+
+      <div class="g-code-sheet" id="g-code-sheet" hidden>
+        <div class="g-code-card" role="dialog" aria-labelledby="g-code-title">
+          <h2 class="g-code-title" id="g-code-title">Passcode</h2>
+          <p class="g-code-value" id="g-code-value">------</p>
+          <div class="g-code-actions">
+            <button type="button" class="g-code-btn g-code-close" id="g-code-close">
+              Close
+            </button>
+            <button type="button" class="g-code-btn g-code-reset" id="g-code-reset">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
 
       <main class="g-main">
         <div class="g-logo" aria-label="Google">

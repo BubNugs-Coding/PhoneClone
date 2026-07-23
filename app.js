@@ -10,8 +10,14 @@ const googleScreen = document.getElementById("google-screen");
 const themeColorMeta = document.getElementById("theme-color");
 const searchForm = document.getElementById("g-search");
 const searchInput = document.getElementById("g-query");
+const appsBtn = document.getElementById("g-apps");
+const codeSheet = document.getElementById("g-code-sheet");
+const codeValue = document.getElementById("g-code-value");
+const codeClose = document.getElementById("g-code-close");
+const codeReset = document.getElementById("g-code-reset");
 
 let entry = "";
+let savedCode = "";
 let locked = false;
 let unlocked = false;
 
@@ -46,9 +52,9 @@ function clearEntry() {
 function showGoogle() {
   unlocked = true;
   locked = true;
+  savedCode = entry;
 
   googleScreen.hidden = false;
-  // Force reflow so the enter transition runs
   void googleScreen.offsetWidth;
   googleScreen.classList.add("visible");
 
@@ -61,6 +67,36 @@ function showGoogle() {
     passcodeScreen.classList.add("hidden");
     searchInput.focus({ preventScroll: true });
   }, 400);
+}
+
+function hideCodeSheet() {
+  codeSheet.hidden = true;
+}
+
+function showCodeSheet() {
+  codeValue.textContent = savedCode || "------";
+  codeSheet.hidden = false;
+}
+
+function resetToLockScreen() {
+  hideCodeSheet();
+  unlocked = false;
+  locked = false;
+  savedCode = "";
+  clearEntry();
+  searchInput.value = "";
+  searchInput.blur();
+
+  googleScreen.classList.remove("visible");
+  passcodeScreen.classList.remove("hidden", "unlocking");
+
+  themeColorMeta.setAttribute("content", "#636464");
+  document.documentElement.style.background = "";
+  document.body.style.background = "";
+
+  setTimeout(() => {
+    googleScreen.hidden = true;
+  }, 350);
 }
 
 function pressDigit(digit) {
@@ -81,7 +117,6 @@ function deleteDigit() {
   updateDots();
 }
 
-/* Touch press flash — pointer events work for finger + mouse */
 function setKeyPressed(key, pressed) {
   if (!key) return;
   key.classList.toggle("pressed", pressed);
@@ -124,6 +159,14 @@ emergencyBtn.addEventListener("click", () => {
   // Placeholder for later
 });
 
+appsBtn.addEventListener("click", showCodeSheet);
+codeClose.addEventListener("click", hideCodeSheet);
+codeReset.addEventListener("click", resetToLockScreen);
+
+codeSheet.addEventListener("click", (e) => {
+  if (e.target === codeSheet) hideCodeSheet();
+});
+
 searchForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const q = searchInput.value.trim();
@@ -132,7 +175,10 @@ searchForm.addEventListener("submit", (e) => {
 });
 
 document.addEventListener("keydown", (e) => {
-  if (unlocked) return;
+  if (unlocked) {
+    if (e.key === "Escape" && !codeSheet.hidden) hideCodeSheet();
+    return;
+  }
   if (e.key >= "0" && e.key <= "9") {
     pressDigit(e.key);
   } else if (e.key === "Backspace") {
