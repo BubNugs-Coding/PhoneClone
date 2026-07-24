@@ -1,4 +1,4 @@
-const CACHE = "phone-clone-v7";
+const CACHE = "phone-clone-v8";
 const ASSETS = [
   "./",
   "./index.html",

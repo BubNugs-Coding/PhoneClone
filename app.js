@@ -122,10 +122,17 @@ function setKeyPressed(key, pressed) {
   key.classList.toggle("pressed", pressed);
 }
 
+/* Register on press-down (not click) so rapid taps aren't dropped on iOS */
 keypad.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" && e.button !== 0) return;
   const key = e.target.closest(".key");
   if (!key) return;
+
   setKeyPressed(key, true);
+  pressDigit(key.dataset.digit);
+
+  // Keep a brief flash even on very quick taps
+  window.setTimeout(() => setKeyPressed(key, false), 90);
 });
 
 keypad.addEventListener("pointerup", (e) => {
@@ -143,17 +150,17 @@ keypad.addEventListener("pointerleave", (e) => {
   setKeyPressed(key, false);
 });
 
+/* Digit already handled on pointerdown — ignore synthetic click */
 keypad.addEventListener("click", (e) => {
-  const key = e.target.closest(".key");
-  if (!key) return;
-  pressDigit(key.dataset.digit);
+  if (e.target.closest(".key")) e.preventDefault();
 });
 
-cancelBtn.addEventListener("click", () => {
-  if (entry.length > 0) {
-    deleteDigit();
-  }
+cancelBtn.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  if (entry.length > 0) deleteDigit();
 });
+
+cancelBtn.addEventListener("click", (e) => e.preventDefault());
 
 emergencyBtn.addEventListener("click", () => {
   // Placeholder for later
